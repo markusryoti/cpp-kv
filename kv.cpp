@@ -37,8 +37,6 @@ void Store::Listen() {
   while (server_socket_ != -1) {
     int client_socket = accept(server_socket_, nullptr, nullptr);
 
-    std::cout << "request accepted" << std::endl;
-
     auto f = [this, client_socket]() { this->handle_request(client_socket); };
 
     std::thread(f).detach();
@@ -60,8 +58,6 @@ void Store::handle_request(int client_socket) {
           std::unique_lock<std::shared_mutex> lock(m_);
           store_[cmd.key] = value;
         }
-        std::cout << "setting: " << cmd.key << "=" << cmd.value.value_or("")
-                  << std::endl;
         send(client_socket, value.c_str(), value.length(), 0);
       }
     } else if (cmd.method == "GET") {
@@ -70,8 +66,6 @@ void Store::handle_request(int client_socket) {
         std::shared_lock<std::shared_mutex> guard(m_);
         value = this->get(cmd.key).value_or("");
       }
-
-      std::cout << "getting: " << cmd.key << "=" << value << std::endl;
       send(client_socket, value.c_str(), value.length(), 0);
     } else {
       throw std::runtime_error("unexpected error");

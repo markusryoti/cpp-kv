@@ -29,8 +29,6 @@ Cmd parse_request(char *buffer) {
     tokens.push_back(trim(s));
   }
 
-  std::cout << "num tokens: " << tokens.size() << std::endl;
-
   if (tokens.size() == 2) {
     return Cmd{.method = tokens.at(0), .key = tokens.at(1)};
   } else if (tokens.size() == 3) {
