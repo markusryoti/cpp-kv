@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <optional>
 #include <ostream>
+#include <shared_mutex>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -55,13 +56,21 @@ void Store::handle_request(int client_socket) {
     if (cmd.method == "SET") {
       if (cmd.value.has_value()) {
         std::string value = cmd.value.value();
-        store_[cmd.key] = value;
+        {
+          std::unique_lock<std::shared_mutex> lock(m_);
+          store_[cmd.key] = value;
+        }
         std::cout << "setting: " << cmd.key << "=" << cmd.value.value_or("")
                   << std::endl;
         send(client_socket, value.c_str(), value.length(), 0);
       }
     } else if (cmd.method == "GET") {
-      auto value = this->get(cmd.key).value_or("");
+      std::string value;
+      {
+        std::shared_lock<std::shared_mutex> guard(m_);
+        value = this->get(cmd.key).value_or("");
+      }
+
       std::cout << "getting: " << cmd.key << "=" << value << std::endl;
       send(client_socket, value.c_str(), value.length(), 0);
     } else {

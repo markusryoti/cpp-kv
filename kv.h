@@ -1,5 +1,6 @@
 #include <map>
 #include <optional>
+#include <shared_mutex>
 
 namespace KV {
 
@@ -16,7 +17,7 @@ public:
 private:
   int server_socket_ = -1;
   std::map<std::string, std::string> store_;
-  // std::map<std::string, std::thread> pool_;
+  std::shared_mutex m_;
 
   void handle_request(int client_socket);
 };
