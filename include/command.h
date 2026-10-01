@@ -1,6 +1,7 @@
-#include <iostream>
+#pragma once
+
+#include <optional>
 #include <string>
-#include <vector>
 
 namespace Command {
 

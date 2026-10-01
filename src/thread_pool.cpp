@@ -5,7 +5,7 @@
 namespace ThreadPool {
 
 Pool::Pool(std::size_t num_workers) {
-  for (int i = 0; i < num_workers; i++) {
+  for (size_t i = 0; i < num_workers; i++) {
     workers.emplace_back([this]() { worker_loop(); });
   }
 };

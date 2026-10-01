@@ -1,3 +1,5 @@
+#pragma once
+
 #include "thread_pool.h"
 #include <map>
 #include <optional>

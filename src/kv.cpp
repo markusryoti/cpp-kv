@@ -24,8 +24,8 @@ Store::Store(int port, ThreadPool::Pool &pool) : pool_(pool) {
 
   setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-  int bind_val = bind(server_socket_, (struct sockaddr *)&server_address,
-                      sizeof(server_address));
+  int _ = bind(server_socket_, (struct sockaddr *)&server_address,
+               sizeof(server_address));
 }
 
 void Store::Listen() {
@@ -45,7 +45,7 @@ void Store::Listen() {
 void Store::handle_request(int client_socket) {
   char buffer[1024] = {0};
 
-  recv(client_socket, buffer, sizeof(buffer), 0);
+  int _ = recv(client_socket, buffer, sizeof(buffer), 0);
 
   try {
     auto cmd = Command::parse_request(buffer);

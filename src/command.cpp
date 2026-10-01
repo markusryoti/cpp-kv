@@ -1,4 +1,5 @@
 #include "command.h"
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -30,7 +31,8 @@ Cmd parse_request(char *buffer) {
   }
 
   if (tokens.size() == 2) {
-    return Cmd{.method = tokens.at(0), .key = tokens.at(1)};
+    return Cmd{
+        .method = tokens.at(0), .key = tokens.at(1), .value = std::nullopt};
   } else if (tokens.size() == 3) {
     return Cmd{
         .method = tokens.at(0), .key = tokens.at(1), .value = tokens.at(2)};
