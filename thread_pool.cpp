@@ -9,7 +9,7 @@ Pool::Pool(std::size_t num_workers) {
     workers.emplace_back([this]() { worker_loop(); });
   }
 };
-Pool::~Pool() { stopping = false; };
+Pool::~Pool() { stopping = true; };
 
 void Pool::enqueue_request(std::function<void()> task) {
   if (stopping) {
