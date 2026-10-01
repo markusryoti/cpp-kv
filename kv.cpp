@@ -7,6 +7,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <unistd.h>
 
 namespace KV {
@@ -37,35 +38,40 @@ void Store::Listen() {
 
     std::cout << "request accepted" << std::endl;
 
-    char buffer[1024] = {0};
-    recv(client_socket, buffer, sizeof(buffer), 0);
+    auto f = [this, client_socket]() { this->handle_request(client_socket); };
 
-    std::cout << "received request: " << sizeof(buffer) << std::endl;
-
-    try {
-      auto cmd = Command::parse_request(buffer);
-
-      if (cmd.method == "SET") {
-        if (cmd.value.has_value()) {
-          std::string value = cmd.value.value();
-          store_[cmd.key] = value;
-          std::cout << "setting: " << cmd.key << "=" << cmd.value.value_or("")
-                    << std::endl;
-          send(client_socket, value.c_str(), value.length(), 0);
-        }
-      } else if (cmd.method == "GET") {
-        auto value = this->get(cmd.key).value_or("");
-        std::cout << "getting: " << cmd.key << "=" << value << std::endl;
-        send(client_socket, value.c_str(), value.length(), 0);
-      } else {
-        throw std::runtime_error("unexpected error");
-      }
-    } catch (std::runtime_error e) {
-      send(client_socket, e.what(), strlen(e.what()), 0);
-    }
-
-    close(client_socket);
+    std::thread(f).detach();
   }
+}
+
+void Store::handle_request(int client_socket) {
+  char buffer[1024] = {0};
+
+  recv(client_socket, buffer, sizeof(buffer), 0);
+
+  try {
+    auto cmd = Command::parse_request(buffer);
+
+    if (cmd.method == "SET") {
+      if (cmd.value.has_value()) {
+        std::string value = cmd.value.value();
+        store_[cmd.key] = value;
+        std::cout << "setting: " << cmd.key << "=" << cmd.value.value_or("")
+                  << std::endl;
+        send(client_socket, value.c_str(), value.length(), 0);
+      }
+    } else if (cmd.method == "GET") {
+      auto value = this->get(cmd.key).value_or("");
+      std::cout << "getting: " << cmd.key << "=" << value << std::endl;
+      send(client_socket, value.c_str(), value.length(), 0);
+    } else {
+      throw std::runtime_error("unexpected error");
+    }
+  } catch (std::runtime_error e) {
+    send(client_socket, e.what(), strlen(e.what()), 0);
+  }
+
+  close(client_socket);
 }
 
 void Store::Stop() {

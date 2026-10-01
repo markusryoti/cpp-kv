@@ -16,6 +16,9 @@ public:
 private:
   int server_socket_ = -1;
   std::map<std::string, std::string> store_;
+  // std::map<std::string, std::thread> pool_;
+
+  void handle_request(int client_socket);
 };
 
 } // namespace KV
