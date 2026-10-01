@@ -1,3 +1,4 @@
+#include "thread_pool.h"
 #include <map>
 #include <optional>
 #include <shared_mutex>
@@ -6,7 +7,7 @@ namespace KV {
 
 class Store {
 public:
-  Store(int port);
+  Store(int port, ThreadPool::Pool &pool);
 
   void Listen();
   void Stop();
@@ -16,6 +17,8 @@ public:
 
 private:
   int server_socket_ = -1;
+
+  ThreadPool::Pool &pool_;
   std::map<std::string, std::string> store_;
   std::shared_mutex m_;
 

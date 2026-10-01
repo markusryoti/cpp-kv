@@ -8,12 +8,11 @@
 #include <shared_mutex>
 #include <stdexcept>
 #include <string>
-#include <thread>
 #include <unistd.h>
 
 namespace KV {
 
-Store::Store(int port) {
+Store::Store(int port, ThreadPool::Pool &pool) : pool_(pool) {
   server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
 
   sockaddr_in server_address;
@@ -39,7 +38,7 @@ void Store::Listen() {
 
     auto f = [this, client_socket]() { this->handle_request(client_socket); };
 
-    std::thread(f).detach();
+    pool_.enqueue_request(f);
   }
 }
 
