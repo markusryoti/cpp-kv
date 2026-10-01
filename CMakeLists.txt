@@ -12,9 +12,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(kv_core STATIC
-    src/kv.cpp
-    src/command.cpp
-    src/thread_pool.cpp
+    src/kv_core/kv.cpp
+    src/kv_core/command.cpp
+    src/kv_core/thread_pool.cpp
 )
 
 find_package(Threads REQUIRED)
@@ -27,10 +27,10 @@ target_include_directories(kv_core
 
 target_compile_options(kv_core PRIVATE -Wall -Wextra -Wpedantic)
 
-add_executable(server src/server.cpp)
+add_executable(server apps/server.cpp)
 target_link_libraries(server PRIVATE kv_core)
 
-add_executable(client src/client.cpp)
+add_executable(client apps/client.cpp)
 target_link_libraries(client PRIVATE kv_core)
 
 

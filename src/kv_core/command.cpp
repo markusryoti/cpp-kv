@@ -1,4 +1,5 @@
-#include "command.h"
+#include "kv_core/command.h"
+#include <cctype>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
@@ -27,6 +28,7 @@ Cmd parse_request(char *buffer) {
   std::string s;
 
   while (std::getline(ss, s, ' ')) {
+    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     tokens.push_back(trim(s));
   }
 
