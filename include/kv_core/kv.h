@@ -1,6 +1,7 @@
 #pragma once
 
 #include "kv_core/thread_pool.h"
+#include <cstdint>
 #include <map>
 #include <optional>
 #include <shared_mutex>
@@ -9,7 +10,7 @@ namespace KV {
 
 class Store {
 public:
-  Store(int port, ThreadPool::Pool &pool);
+  Store(uint16_t port, ThreadPool::Pool &pool);
 
   void Listen();
   void Stop();

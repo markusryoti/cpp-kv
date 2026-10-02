@@ -3,6 +3,7 @@
 #include "spdlog/spdlog.h"
 #include <cerrno>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <netinet/in.h>
 #include <optional>
@@ -17,7 +18,7 @@ constexpr size_t kReadChunk = 1024;
 constexpr size_t kMaxRequest = 4096;
 constexpr time_t kReadTimeoutSec = 5;
 
-Store::Store(int port, ThreadPool::Pool &pool) : pool_(pool) {
+Store::Store(uint16_t port, ThreadPool::Pool &pool) : pool_(pool) {
   server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
 
   sockaddr_in server_address;
@@ -43,7 +44,7 @@ void Store::Listen() {
   while (server_socket_ != -1) {
     int client_socket = accept(server_socket_, nullptr, nullptr);
 
-    spdlog::info("Socket accepted, num_socket={}", client_socket);
+    spdlog::debug("Socket accepted, num_socket={}", client_socket);
 
     auto f = [this, client_socket]() { this->handle_request(client_socket); };
 
@@ -108,9 +109,9 @@ void Store::handle_request(int client_socket) {
 
     if (cmd.method == "SET") {
       if (cmd.value.has_value()) {
-        std::string value = cmd.value.value();
+        std::string value = *cmd.value;
         this->put(cmd.key, value);
-        send(client_socket, value.c_str(), value.length(), 0);
+        send(client_socket, value.data(), value.length(), 0);
       }
     } else if (cmd.method == "GET") {
       auto value = this->get(cmd.key).value_or("");
