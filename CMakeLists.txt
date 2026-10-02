@@ -13,6 +13,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(kv_core STATIC
     src/kv.cpp
+    src/map.cpp
     src/command.cpp
     src/thread_pool.cpp
 )
