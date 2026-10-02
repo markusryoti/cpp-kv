@@ -7,3 +7,9 @@ C++ kv store with raw TCP sockets and simple Redis style interface. Thread pool 
 ```bash
 cmake -S . -B build && cmake --build build
 ```
+
+## Test
+
+```
+ctest --test-dir build --output-on-failure
+```

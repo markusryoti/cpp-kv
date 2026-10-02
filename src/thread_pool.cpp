@@ -11,15 +11,25 @@ Pool::Pool(std::size_t num_workers) {
   }
 };
 
-Pool::~Pool() { stopping = true; };
-
-void Pool::enqueue_request(std::function<void()> task) {
-  if (stopping) {
-    return;
-  }
-
+Pool::~Pool() {
   {
     std::lock_guard lock(mutex);
+    stopping = true;
+  }
+
+  condition.notify_all();
+
+  for (auto &w : workers) {
+    w.join();
+  }
+};
+
+void Pool::enqueue_request(std::function<void()> task) {
+  {
+    std::lock_guard lock(mutex);
+    if (stopping) {
+      return;
+    }
     tasks.emplace(task);
   }
 
