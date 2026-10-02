@@ -61,18 +61,11 @@ void Store::handle_request(int client_socket) {
     if (cmd.method == "SET") {
       if (cmd.value.has_value()) {
         std::string value = cmd.value.value();
-        {
-          std::unique_lock<std::shared_mutex> lock(m_);
-          store_[cmd.key] = value;
-        }
+        this->put(cmd.key, value);
         send(client_socket, value.c_str(), value.length(), 0);
       }
     } else if (cmd.method == "GET") {
-      std::string value;
-      {
-        std::shared_lock<std::shared_mutex> guard(m_);
-        value = this->get(cmd.key).value_or("");
-      }
+      auto value = this->get(cmd.key).value_or("");
       send(client_socket, value.data(), value.length(), 0);
     } else {
       spdlog::error("Unexpected method, num_socket={} method={}", client_socket,
@@ -95,16 +88,22 @@ void Store::Stop() {
   server_socket_ = -1;
 }
 
-void Store::put(std::string key, std::string value) {
-  store_.insert({key, value});
+void Store::put(std::string &key, std::string value) {
+  {
+    std::unique_lock<std::shared_mutex> lock(m_);
+    store_[key] = value;
+  }
 }
 
 std::optional<std::string> Store::get(std::string &key) {
-  try {
-    auto val = store_.at(key);
-    return val;
-  } catch (const std::out_of_range) {
-    return std::nullopt;
+  {
+    std::shared_lock<std::shared_mutex> guard(m_);
+    try {
+      auto val = store_.at(key);
+      return val;
+    } catch (const std::out_of_range) {
+      return std::nullopt;
+    }
   }
 }
 
