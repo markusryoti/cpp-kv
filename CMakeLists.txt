@@ -12,9 +12,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(kv_core STATIC
-    src/kv_core/kv.cpp
-    src/kv_core/command.cpp
-    src/kv_core/thread_pool.cpp
+    src/kv.cpp
+    src/command.cpp
+    src/thread_pool.cpp
 )
 
 find_package(Threads REQUIRED)
