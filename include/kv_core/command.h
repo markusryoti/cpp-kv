@@ -11,6 +11,6 @@ struct Cmd {
   std::optional<std::string> value;
 };
 
-Cmd parse_request(char *buffer);
+Cmd parse_request(const std::string &request);
 
 } // namespace Command

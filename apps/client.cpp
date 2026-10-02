@@ -27,12 +27,15 @@ void send_command(std::string_view msg) {
     throw std::runtime_error("coudln't obtain socket");
   }
 
-  send(sock, msg.data(), msg.size(), 0);
+  std::string request(msg);
+  request += '\n';
+  send(sock, request.data(), request.size(), 0);
 
-  char buffer[1024] = {0};
-  recv(sock, buffer, sizeof(buffer), 0);
+  char buffer[1024];
+  ssize_t n = recv(sock, buffer, sizeof(buffer), 0);
+  std::string response(buffer, n > 0 ? static_cast<size_t>(n) : 0);
 
-  std::cout << "Message from server: " << buffer << std::endl;
+  std::cout << "Message from server: " << response << std::endl;
 
   close(sock);
 }

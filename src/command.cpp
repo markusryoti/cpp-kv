@@ -22,14 +22,18 @@ std::string rtrim(const std::string &s) {
 
 std::string trim(const std::string &s) { return rtrim(ltrim(s)); }
 
-Cmd parse_request(char *buffer) {
-  std::stringstream ss(buffer);
+Cmd parse_request(const std::string &request) {
+  std::stringstream ss(request);
   std::vector<std::string> tokens;
   std::string s;
 
   while (std::getline(ss, s, ' ')) {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     tokens.push_back(trim(s));
+  }
+
+  if (tokens.empty()) {
+    throw std::runtime_error("empty_command");
   }
 
   if (tokens.size() == 2) {
