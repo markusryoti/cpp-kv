@@ -27,7 +27,7 @@ Cmd parse_request(const std::string &request) {
   std::vector<std::string> tokens;
   std::string s;
 
-  while (std::getline(ss, s, ' ')) {
+  while (ss >> s) {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
     tokens.push_back(trim(s));
   }

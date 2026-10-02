@@ -7,7 +7,6 @@
 #include <cstring>
 #include <netinet/in.h>
 #include <optional>
-#include <shared_mutex>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
