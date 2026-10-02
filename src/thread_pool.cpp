@@ -1,4 +1,5 @@
 #include "kv_core/thread_pool.h"
+#include "spdlog/spdlog.h"
 #include <cstddef>
 #include <mutex>
 
@@ -9,6 +10,7 @@ Pool::Pool(std::size_t num_workers) {
     workers.emplace_back([this]() { worker_loop(); });
   }
 };
+
 Pool::~Pool() { stopping = true; };
 
 void Pool::enqueue_request(std::function<void()> task) {
@@ -22,6 +24,8 @@ void Pool::enqueue_request(std::function<void()> task) {
   }
 
   condition.notify_one();
+
+  spdlog::debug("Request enqueued for thread pool");
 }
 
 void Pool::worker_loop() {
@@ -40,6 +44,8 @@ void Pool::worker_loop() {
       task = std::move(tasks.front());
       tasks.pop();
     }
+
+    spdlog::debug("Popped request from thread pool");
 
     task();
   }

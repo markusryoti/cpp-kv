@@ -39,7 +39,9 @@ Cmd parse_request(char *buffer) {
     return Cmd{
         .method = tokens.at(0), .key = tokens.at(1), .value = tokens.at(2)};
   } else {
-    throw std::runtime_error("invalid command");
+    std::stringstream ss;
+    ss << "invalid_command=" << tokens.at(0) << " num_parts=" << tokens.size();
+    throw std::runtime_error(ss.str());
   }
 }
 

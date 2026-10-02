@@ -1,10 +1,9 @@
 #include "kv_core/kv.h"
 #include "kv_core/command.h"
+#include "spdlog/spdlog.h"
 #include <cstring>
-#include <iostream>
 #include <netinet/in.h>
 #include <optional>
-#include <ostream>
 #include <shared_mutex>
 #include <stdexcept>
 #include <string>
@@ -29,12 +28,16 @@ Store::Store(int port, ThreadPool::Pool &pool) : pool_(pool) {
 }
 
 void Store::Listen() {
+  spdlog::info("Starting server");
+
   listen(server_socket_, 5);
 
-  std::cout << "listening" << std::endl;
+  spdlog::info("Server socket listening");
 
   while (server_socket_ != -1) {
     int client_socket = accept(server_socket_, nullptr, nullptr);
+
+    spdlog::info("Socket accepted, num_socket={}", client_socket);
 
     auto f = [this, client_socket]() { this->handle_request(client_socket); };
 
@@ -43,9 +46,14 @@ void Store::Listen() {
 }
 
 void Store::handle_request(int client_socket) {
+  spdlog::debug("Handling socket, num_socket={}", client_socket);
+
   char buffer[1024] = {0};
 
   int _ = recv(client_socket, buffer, sizeof(buffer), 0);
+
+  spdlog::debug("Read client data for socket, num_socket={} size={}",
+                client_socket, strlen(buffer));
 
   try {
     auto cmd = Command::parse_request(buffer);
@@ -67,13 +75,19 @@ void Store::handle_request(int client_socket) {
       }
       send(client_socket, value.data(), value.length(), 0);
     } else {
-      throw std::runtime_error("unexpected error");
+      spdlog::error("Unexpected method, num_socket={} method={}", client_socket,
+                    cmd.method);
+      send(client_socket, "", strlen(""), 0);
     }
   } catch (std::runtime_error e) {
+    spdlog::error("Runtime error, num_socket={}, error={}", client_socket,
+                  e.what());
     send(client_socket, e.what(), strlen(e.what()), 0);
   }
 
   close(client_socket);
+
+  spdlog::debug("Socket handled, num_socket={}", client_socket);
 }
 
 void Store::Stop() {

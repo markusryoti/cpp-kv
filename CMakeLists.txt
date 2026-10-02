@@ -18,7 +18,8 @@ add_library(kv_core STATIC
 )
 
 find_package(Threads REQUIRED)
-target_link_libraries(kv_core PUBLIC Threads::Threads)
+find_package(spdlog REQUIRED)
+target_link_libraries(kv_core PUBLIC Threads::Threads spdlog::spdlog)
 
 target_include_directories(kv_core
     PUBLIC
