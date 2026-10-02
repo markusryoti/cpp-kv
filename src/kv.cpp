@@ -65,7 +65,7 @@ void Store::handle_request(int client_socket) {
         std::shared_lock<std::shared_mutex> guard(m_);
         value = this->get(cmd.key).value_or("");
       }
-      send(client_socket, value.c_str(), value.length(), 0);
+      send(client_socket, value.data(), value.length(), 0);
     } else {
       throw std::runtime_error("unexpected error");
     }

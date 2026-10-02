@@ -1,5 +1,6 @@
 #include <iostream>
 #include <netinet/in.h>
+#include <stdexcept>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -22,6 +23,9 @@ int get_socket() {
 
 void send_command(std::string_view msg) {
   int sock = get_socket();
+  if (sock == -1) {
+    throw std::runtime_error("coudln't obtain socket");
+  }
 
   send(sock, msg.data(), msg.size(), 0);
 
