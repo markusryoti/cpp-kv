@@ -6,11 +6,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+
 add_executable(kv_tests 
   command_test.cpp
   thread_pool_test.cpp
   map_test.cpp
 )
+
+target_compile_options(kv_tests PRIVATE ${KV_WARNINGS})
 
 target_link_libraries(kv_tests PRIVATE kv_core GTest::gtest_main)
 include(GoogleTest)

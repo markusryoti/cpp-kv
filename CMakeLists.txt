@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(KV_WARNINGS -Wall -Wextra -Wpedantic)
+
 add_library(kv_core STATIC
     src/kv.cpp
     src/map.cpp
@@ -27,7 +29,7 @@ target_include_directories(kv_core
         ${PROJECT_SOURCE_DIR}/include
 )
 
-target_compile_options(kv_core PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(kv_core PRIVATE ${KV_WARNINGS})
 
 add_executable(server apps/server.cpp)
 target_link_libraries(server PRIVATE kv_core)
@@ -35,6 +37,9 @@ target_link_libraries(server PRIVATE kv_core)
 add_executable(client apps/client.cpp)
 target_link_libraries(client PRIVATE kv_core)
 
+option(KV_BUILD_TESTS "build unit tests" ${PROJECT_IS_TOP_LEVEL})
 
-enable_testing()
-add_subdirectory(tests)
+if(KV_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
