@@ -3,10 +3,10 @@
 #include "spdlog/spdlog.h"
 
 int main() {
-  spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::debug);
 
-  ThreadPool::Pool tp{5};
-  KV::Store store{8080, tp};
+    ThreadPool::Pool tp{5};
+    KV::Store store{8080, tp};
 
-  store.Listen();
+    store.Listen();
 }

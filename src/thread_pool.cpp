@@ -6,59 +6,59 @@
 namespace ThreadPool {
 
 Pool::Pool(std::size_t num_workers) {
-  for (size_t i = 0; i < num_workers; i++) {
-    workers.emplace_back([this]() { worker_loop(); });
-  }
+    for (size_t i = 0; i < num_workers; i++) {
+        workers.emplace_back([this]() { worker_loop(); });
+    }
 };
 
 Pool::~Pool() {
-  {
-    std::lock_guard lock(mutex);
-    stopping = true;
-  }
+    {
+        std::lock_guard lock(mutex);
+        stopping = true;
+    }
 
-  condition.notify_all();
+    condition.notify_all();
 
-  for (auto &w : workers) {
-    w.join();
-  }
+    for (auto &w : workers) {
+        w.join();
+    }
 };
 
 void Pool::enqueue_request(std::function<void()> task) {
-  {
-    std::lock_guard lock(mutex);
-    if (stopping) {
-      return;
+    {
+        std::lock_guard lock(mutex);
+        if (stopping) {
+            return;
+        }
+        tasks.emplace(task);
     }
-    tasks.emplace(task);
-  }
 
-  condition.notify_one();
+    condition.notify_one();
 
-  spdlog::debug("Request enqueued for thread pool");
+    spdlog::debug("Request enqueued for thread pool");
 }
 
 void Pool::worker_loop() {
-  while (true) {
-    std::function<void()> task;
+    while (true) {
+        std::function<void()> task;
 
-    {
-      std::unique_lock<std::mutex> lock(mutex);
+        {
+            std::unique_lock<std::mutex> lock(mutex);
 
-      condition.wait(lock, [this] { return stopping || !tasks.empty(); });
+            condition.wait(lock, [this] { return stopping || !tasks.empty(); });
 
-      if (stopping && tasks.empty()) {
-        return;
-      }
+            if (stopping && tasks.empty()) {
+                return;
+            }
 
-      task = std::move(tasks.front());
-      tasks.pop();
+            task = std::move(tasks.front());
+            tasks.pop();
+        }
+
+        spdlog::debug("Popped request from thread pool");
+
+        task();
     }
-
-    spdlog::debug("Popped request from thread pool");
-
-    task();
-  }
 }
 
 } // namespace ThreadPool

@@ -7,18 +7,18 @@
 namespace KV {
 
 class Store {
-public:
-  Store(uint16_t port, ThreadPool::Pool &pool);
+  public:
+    Store(uint16_t port, ThreadPool::Pool &pool);
 
-  void Listen();
-  void Stop();
+    void Listen();
+    void Stop();
 
-private:
-  void handle_request(int client_socket);
+  private:
+    void handle_request(int client_socket);
 
-  int server_socket_ = -1;
-  ThreadPool::Pool &pool_;
-  KvMap::Map map_;
+    int server_socket_ = -1;
+    ThreadPool::Pool &pool_;
+    KvMap::Map map_;
 };
 
 } // namespace KV
